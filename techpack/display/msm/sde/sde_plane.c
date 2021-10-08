@@ -3941,7 +3941,7 @@ static int sde_plane_atomic_set_property(struct drm_plane *plane,
 				property);
 		if (idx == PLANE_PROP_ZPOS) {
 			if (val & FOD_PRESSED_LAYER_ZORDER) {
-				val &= ~FOD_PRESSED_LAYER_ZORDER
+				val &= ~FOD_PRESSED_LAYER_ZORDER;
 				fod_val = 1;
 			}
 
