@@ -233,6 +233,7 @@ struct dsi_panel {
 	char asus_initial_code_version[16];
 	char asus_initial_code_description[32];
 	u64 asus_boost_panel_clock_rate_hz;
+	bool fod_ui;
 };
 
 static inline bool dsi_panel_ulps_feature_enabled(struct dsi_panel *panel)
@@ -364,5 +365,8 @@ int dsi_panel_set_hbm(struct dsi_panel *panel, bool enable);
 int dsi_panel_set_global_hbm(struct dsi_panel *panel, bool enable);
 int dsi_panel_set_local_hbm(struct dsi_panel *panel, bool enable);
 int dsi_panel_set_bus_dim(struct dsi_panel *panel, int refresh_rate);
+
+bool dsi_panel_get_fod_ui(struct dsi_panel *panel);
+void dsi_panel_set_fod_ui(struct dsi_panel *panel, bool status);
 
 #endif /* _DSI_PANEL_H_ */
