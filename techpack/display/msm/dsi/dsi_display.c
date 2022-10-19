@@ -114,7 +114,6 @@ extern bool old_has_fov_makser;         //from sde_crtc.c
 
 // functions that only inside display driver
 void asus_display_read_panel_osc(struct dsi_display *display);
-void asus_display_set_dimming(u32 cur_bl);
 void asus_display_get_tcon_cmd(char cmd, int rlen);
 void asus_display_set_tcon_cmd(char *cmd, short len, int type);
 void asus_display_set_global_hbm(int mode);
@@ -303,7 +302,6 @@ void asus_primary_display_commit(void)
 			udelay(asus_display_get_global_hbm_delay(false)*1000);
 			asus_drm_notify(ASUS_NOTIFY_GHBM_ON_READY, 0);
 			g_display->panel->asus_global_hbm_mode = 0;
-			asus_display_set_dimming(0); // reset dimming parameter
 			asus_display_apply_fps_setting(); // restore correct target fps setting
 			pr_err("[Display] globalHbm set to 0");
 		}
@@ -548,7 +546,6 @@ error:
 	if (panel->asus_bl_delay != 0)
 		udelay(panel->asus_bl_delay);
 
-	asus_display_set_dimming(bl_lvl);
 	return rc;
 }
 
@@ -5786,41 +5783,6 @@ void asus_display_set_dim_param(int mode, int type)
 
 	if (rc)
 		pr_err("[Display] set bus dim mode error [%d]\n", rc);
-}
-
-// set the dimming effect on 2nd backlight
-// they need 1st backlight to be reached ASAP
-void asus_display_set_dimming(u32 cur_bl)
-{
-	static char dimming[2] = {0x53, 0x2C};
-	static int bl_count = 0;
-
-	if (!asus_display_panel_valid())
-		return;
-
-	if (asus_display_in_aod() || cur_bl == 0 ||
-			g_display->panel->asus_global_hbm_pending_mode == 1 ||
-			g_display->panel->asus_hbm_mode == 1) {
-		printk("[Display] do not set dimming in AOD, BL0, GHBM, HBM\n");
-		g_display->panel->asus_bl_delay = 0;
-		bl_count = 0;
-		return;
-	}
-
-	if (bl_count == 1) {
-		asus_display_set_tcon_cmd(dimming, sizeof(dimming), 0);
-
-		// first boot, second backlight only
-		if (asus_blocking_fps_until_bootup) {
-			printk("[Display] first dim, reset fps\n");
-			asus_blocking_fps_until_bootup = false; //reset it along with first backlight dim
-			need_change_fps = true;
-		}
-	}
-
-	dsi_panel_bl_delay(g_display->panel);
-
-	bl_count++;
 }
 
 void asus_display_set_global_hbm(int mode)
