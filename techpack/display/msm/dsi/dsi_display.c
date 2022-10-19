@@ -1409,10 +1409,6 @@ int dsi_display_set_power(struct drm_connector *connector,
 			// ASUS_BSP --- Touch
 			in_aod_doze_mode = true;
 		}
-
-		// set the default AOD backlight to the last backlight
-		if (g_display->panel->asus_last_user_aod_bl != 0)
-			dsi_panel_set_backlight(g_display->panel, g_display->panel->asus_last_user_aod_bl);
 		break;
 	case SDE_MODE_DPMS_LP2:
 		pr_err("[Display] enter LP2 doze suspend\n");
