@@ -33,8 +33,6 @@
 #define DEFAULT_PANEL_PREFILL_LINES	25
 #define MIN_PREFILL_LINES      35
 
-#define ASUS_AOD_THRES      1  //Android R spec
-
 // ASUS_BSP +++ Touch
 extern void phone_touch_resume(void);
 extern void phone_touch_suspend(void);
@@ -740,27 +738,6 @@ static int dsi_panel_wled_register(struct dsi_panel *panel,
 	return 0;
 }
 
-int asus_display_convert_backlight(struct dsi_panel *panel, int bl_lvl)
-{
-	int backlight_converted = bl_lvl;
-
-	if (asus_display_in_aod() && !panel->asus_global_hbm_mode) {
-		if (bl_lvl > ASUS_AOD_THRES) {
-			panel->asus_last_user_aod_bl = bl_lvl;
-			backlight_converted = asus_alpm_bl_high;
-			pr_err("[Display] convert to %d, reason AOD\n", asus_alpm_bl_high);
-		} else if (bl_lvl == ASUS_AOD_THRES){
-			panel->asus_last_user_aod_bl = bl_lvl;
-			backlight_converted = asus_alpm_bl_low;
-			pr_err("[Display] convert to %d, reason AOD\n", asus_alpm_bl_low);
-		}
-	} else if (has_pxlw_video_blocker) {
-		pr_err("[Display] do not convert backlight, reason pixelworks video blocker\n");
-	}
-
-	return backlight_converted;
-}
-
 static int dsi_panel_update_backlight(struct dsi_panel *panel,
 	u32 bl_lvl)
 {
@@ -785,8 +762,6 @@ static int dsi_panel_update_backlight(struct dsi_panel *panel,
 	if (bl_lvl != 0)
 		lastBL = (int)bl_lvl;
 	/* ASUS BSP DP, bl for station --- */
-
-	bl_lvl = asus_display_convert_backlight(panel, bl_lvl);
 
 	dsi = &panel->mipi_device;
 
@@ -3669,7 +3644,6 @@ struct dsi_panel *dsi_panel_get(struct device *parent,
 	panel->asus_global_hbm_mode = 0;
 	panel->asus_local_hbm_mode = 0;
 	panel->panel_first_bootup = true;
-	panel->asus_last_user_aod_bl = 0;
 
 	return panel;
 error:
