@@ -55,8 +55,6 @@ extern bool asus_var_global_hbm_pending;
 extern int  has_pxlw_video_blocker;
 
 extern int asus_current_fps;
-extern int asus_alpm_bl_high;
-extern int asus_alpm_bl_low;
 
 /* ASUS BSP DP +++ */
 int lastBL = 1023;

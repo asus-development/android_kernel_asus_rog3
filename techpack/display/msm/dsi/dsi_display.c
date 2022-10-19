@@ -94,8 +94,6 @@ char asus_var_panel_unique_id[8];       //panel unique ID
 char asus_var_panel_stage[3];           //panel stage
 char asus_var_reg_buffer[REG_BUF_SIZE]; //panel register readback buffer
 bool asus_var_ever_power_off = false;   //workaround for boost MDP clock
-int  asus_alpm_bl_high = 344;
-int  asus_alpm_bl_low = 0;
 char lcd_stage[10];
 
 // variables that only used for test
@@ -121,7 +119,6 @@ void asus_display_get_tcon_cmd(char cmd, int rlen);
 void asus_display_set_tcon_cmd(char *cmd, short len, int type);
 void asus_display_set_global_hbm(int mode);
 void asus_display_set_global_hbm_fod(void);
-void asus_display_set_panel_aod_bl(void);
 int  asus_display_get_global_hbm_delay(bool on);
 void asus_display_set_global_hbm_delay(bool on, int value);
 
@@ -1402,7 +1399,6 @@ int dsi_display_set_power(struct drm_connector *connector,
 		if (asus_var_manual_idle_out || !asus_display_in_aod()) {
 			pr_err("[Display] set LP1 command\n");
 			rc = dsi_panel_set_lp1(display->panel);
-			asus_display_set_panel_aod_bl();
 			asus_var_manual_idle_out = false;
 			// ASUS_BSP +++ Touch
 			phone_touch_suspend();
@@ -1418,7 +1414,6 @@ int dsi_display_set_power(struct drm_connector *connector,
 			// if global hbm is on, turn it off in doze suspend
 			dsi_panel_set_global_hbm(g_display->panel, 0);
 			rc = dsi_panel_set_lp1(display->panel);
-			asus_display_set_panel_aod_bl();
 			asus_var_manual_idle_out = false;
 			old_has_fov_makser = false;
 			asus_drm_notify(ASUS_NOTIFY_SPOT_READY, 0);
@@ -5593,26 +5588,6 @@ void asus_display_set_local_hbm(int enable)
 		g_display->panel->asus_local_hbm_mode = enable;
 
 		dsi_panel_set_local_hbm(g_display->panel, false);
-	}
-}
-
-void asus_display_set_panel_aod_bl()
-{
-	if (strncmp(lcd_stage, "2", 1) == 0){ //SR
-		asus_alpm_bl_high = 344;
-		asus_alpm_bl_low = 0;
-	} else if (strncmp(lcd_stage, "3", 1) == 0) { //ER1
-		asus_alpm_bl_high = 344;
-		asus_alpm_bl_low = 0;
-	} else if (strncmp(lcd_stage, "4", 1) == 0) { //ER2
-		asus_alpm_bl_high = 100;
-		asus_alpm_bl_low = 3;
-	} else if (strncmp(lcd_stage, "5", 1) == 0) { //PR
-		asus_alpm_bl_high = 100;
-		asus_alpm_bl_low = 3;
-	} else {
-		asus_alpm_bl_high = 344;
-		asus_alpm_bl_low = 0;
 	}
 }
 
